@@ -1,0 +1,26 @@
+<annotation>
+	<folder>Hypertrophic lichen planus</folder>
+	<filename>Hypertrophic lichen planus3.jpg</filename>
+	<path>C:\Users\Kenneth James Belga\Documents\University\SE\Flutter\prototype1\object-detection\frcnn\classes\Hypertrophic lichen planus\Hypertrophic lichen planus3.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>965</width>
+		<height>1524</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>hypertrophic lichen planus</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>135</xmin>
+			<ymin>217</ymin>
+			<xmax>780</xmax>
+			<ymax>1425</ymax>
+		</bndbox>
+	</object>
+</annotation>

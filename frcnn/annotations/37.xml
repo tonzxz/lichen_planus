@@ -1,0 +1,26 @@
+<annotation>
+	<folder>Annular Lichen Planus</folder>
+	<filename>37.jpg</filename>
+	<path>C:\Users\Kenneth James Belga\Documents\University\SE\Flutter\prototype1\object-detection\frcnn\classes\Annular Lichen Planus\37.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>381</width>
+		<height>334</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>annular lichen planus</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>91</xmin>
+			<ymin>67</ymin>
+			<xmax>356</xmax>
+			<ymax>300</ymax>
+		</bndbox>
+	</object>
+</annotation>

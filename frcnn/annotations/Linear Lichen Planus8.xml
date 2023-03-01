@@ -1,0 +1,26 @@
+<annotation>
+	<folder>Linear Lichen Planus</folder>
+	<filename>Linear Lichen Planus8.jpg</filename>
+	<path>C:\Users\Kenneth James Belga\Documents\University\SE\Flutter\prototype1\object-detection\frcnn\classes\Linear Lichen Planus\Linear Lichen Planus8.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>270</width>
+		<height>174</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>linear lichen planus</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>89</xmin>
+			<ymin>94</ymin>
+			<xmax>258</xmax>
+			<ymax>158</ymax>
+		</bndbox>
+	</object>
+</annotation>
