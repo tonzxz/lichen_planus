@@ -35,8 +35,6 @@ for file in os.listdir(annotations):
     file_path = xml.find('path')
     if not os.path.exists(classes+ class_folder.text+ '/'+file_name.text):
         continue
-    # get path    
-    imagePath = classes + class_folder.text + "/" + file_name.text 
     size = xml.find("size")
     width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
     height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
@@ -62,6 +60,8 @@ for file in os.listdir(annotations):
     for object in xml.findall("object"):
         if(object):
             className = object.find('name')
+             # get path    
+            imagePath = classes + className.text + "/" + file_name.text 
             box = object.find("bndbox")
             xmin = ElementTree.tostringlist(box.find("xmin"), encoding='unicode')[2]
             ymin = ElementTree.tostringlist(box.find("ymin"), encoding='unicode')[2]
@@ -74,7 +74,7 @@ for file in os.listdir(annotations):
             xmaxValue = int(xmax)
             ymaxValue = int(ymax)
             # Add line to annot
-            f.write(file_path.text + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
+            f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
             if annot_count == 0:
                 i[classList.index(class_folder.text.lower())] += 1   
                 if setType == "TRAINING":
@@ -88,7 +88,7 @@ for file in os.listdir(annotations):
             #    csvfile_writer.writerow(full_image)
             #    full_image_added = True
             if isDuplicate:
-                f.write(file_path.text + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
+                f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
                 if annot_count == 0:
                     training_count[classList.index(class_folder.text.lower())] += 1
                     i[classList.index(class_folder.text.lower())] += 1    
