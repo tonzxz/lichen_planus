@@ -1,4 +1,4 @@
-# SEprototype  
+# Lichen Planus Identifier Prototype
 -----------------------------------  
 -----------------------------------  
 Python 3.8  
