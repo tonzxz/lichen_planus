@@ -13,7 +13,7 @@ pip install opencv-python
 Start a flutter project  
 Copy files from flutter folder to project folder  
 ** Flutter project must contain a model, train and deploy a model before running the app **  
-** use "python tflite.py --deploy" to deploy model to the flutter project **  
+** use "python tflite.py --deploy" to deploy a model to the flutter project **  
 
 References:  
 https://github.com/indiantechwarrior/faster_rcnn_tensorflow  
