@@ -32,7 +32,7 @@ class Config:
         # Resize anchors
         self.scaler = 0.7
         # Learning Rate
-        self.epsilon = 4e-4
+        self.epsilon = 4e-5
          # Set epochs for training
         self.epochs = 20
 
