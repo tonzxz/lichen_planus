@@ -1,5 +1,5 @@
 -----------------------------------  
-# Flutter Based Lichen Planus Identifier Application using FRCNN Object Detection 
+# Lichen Planus Rash Detection using FRCNN Object Detection 
 -----------------------------------  
 Python 3.8  
 pip version 22.3.1  
