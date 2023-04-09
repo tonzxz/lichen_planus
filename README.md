@@ -1,5 +1,5 @@
-# Lichen Planus Identifier Prototype
 -----------------------------------  
+# Lichen Planus Identifier Prototype
 -----------------------------------  
 Python 3.8  
 pip version 22.3.1  
