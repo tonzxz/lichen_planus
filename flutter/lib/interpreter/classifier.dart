@@ -17,9 +17,6 @@ class Classifier {
   Interpreter? _rpnInterpreter;
   Interpreter? _clsInterpreter;
 
-  /// Labels file loaded as list
-  List<String>? _labels;
-
   static const String MODEL_RPN_FILENAME = "model_rpn.tflite";
   static const String MODEL_CLASSIFIER_FILENAME = "model_classifier.tflite";
   static const String LABEL_FILE_NAME = "labels.txt";
@@ -30,15 +27,16 @@ class Classifier {
   /// [ImageProcessor] used to pre-process the image
   ImageProcessor? imageProcessor;
 
-  /// Padding the image to transform into square
-  // int? padSize;
-
   /// Shapes of output tensors
   List<List<int>>? _rpnOutputShapes;
   List<List<int>>? _clsOutputShapes;
-
-  /// Types of output tensors
-  // List<TfLiteType>? _outputTypes;
+  // Provide labels from training [class_mapping]
+  final List<String> _labels = [
+    "Annular Lichen Planus",
+    "Linear Lichehn Planus",
+    "Hypertropic Lichen Planus",
+    "???"
+  ];
 
   /// Number of results to show
   static const int NUM_RESULTS = 8; // batches
@@ -49,7 +47,7 @@ class Classifier {
   Classifier() {
     loadRPNModel();
     loadClassifierModel();
-    loadLabels();
+    // loadLabels();
   }
 
   /// Loads interpreter from asset
@@ -75,14 +73,14 @@ class Classifier {
     }
   }
 
-  /// Loads labels from assets
-  void loadLabels() async {
-    try {
-      _labels = await FileUtil.loadLabels("assets/" + LABEL_FILE_NAME);
-    } catch (e) {
-      print("Error while loading labels: $e");
-    }
-  }
+  // /// Loads labels from assets
+  // void loadLabels() async {
+  //   try {
+  //     _labels = await FileUtil.loadLabels("assets/" + LABEL_FILE_NAME);
+  //   } catch (e) {
+  //     print("Error while loading labels: $e");
+  //   }
+  // }
 
   List<int> applyRegr(double x, y, w, h, tx, ty, tw, th) {
     double cx = x + (w / 2);
@@ -408,7 +406,7 @@ class Classifier {
             predictedClass == PclsLayer.shape[2] - 1) {
           continue;
         }
-        String className = _labels!.elementAt(predictedClass);
+        String className = _labels.elementAt(predictedClass);
 
         if (!bboxes.containsKey(className)) {
           bboxes[className] = [];
