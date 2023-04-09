@@ -1,5 +1,5 @@
 -----------------------------------  
-# Lichen Planus Rash Detection using FRCNN Object Detection 
+# Lichen Planus Rash Detection using FRCNN (Flutter App)
 -----------------------------------  
 
 + Setup FRCNN Workspace + 
