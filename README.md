@@ -14,7 +14,7 @@ pip install opencv-python
 
 python compileannotations.py ( python compileannotations.py --bg, if there are background images )  
 python train.py  
-python test.py ( Test the model, includes calculation of maP from test images )
+python test.py ( Test the model, includes calculation of maP from test images )  
 python tflite.py --deploy  
 
 Start a flutter project   
