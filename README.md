@@ -14,7 +14,7 @@ pip install opencv-python
 
 python compileannotations.py ( python compileannotations.py --bg, if there are background images )  
 python train.py  
-** Modify Config.py from keras_frcnn folder for hyperparamaters **
+** Hyperparameters are located on Config.py from keras_frcnn folder **  
 python test.py ( Test the model, includes calculation of maP from test images )  
 python tflite.py --deploy  
 
