@@ -2,6 +2,13 @@ from xml.etree import ElementTree
 import os
 import numpy as np
 import math
+import cv2
+from optparse import OptionParser
+
+commands = OptionParser()
+commands.add_option("--bg",dest="includeBackground", help="Choose to include background data.",action="store_true", default=False)
+
+(options, args) = commands.parse_args()
 
 # Create Annotation File
 f = open("annotation.txt", "w+")
@@ -10,12 +17,14 @@ classes = "classes/"
 annotations = "annotations/"
 classList = []
 for i in os.listdir(classes):
-    classList.append(i.lower())
+    if i.lower() != 'bg':
+        classList.append(i.lower())
 
 class_count = np.zeros(len(classList),dtype=int).tolist()
 for i in os.listdir(classes):
     for j in os.listdir(classes+i):
-        class_count[classList.index(i.lower())] += 1
+        if i.lower() != 'bg':
+            class_count[classList.index(i.lower())] += 1
 # max data count
 duplicationfactor = 0
 offset = 0
@@ -29,39 +38,40 @@ training_count = np.zeros(len(classList),dtype=int).tolist()
 test_count = np.zeros(len(classList),dtype=int).tolist()
 validation_count = np.zeros(len(classList),dtype=int).tolist()
 for file in os.listdir(annotations):
-    xml = ElementTree.parse(annotations+ file)
-    class_folder = xml.find("folder")
-    file_name = xml.find("filename")
-    file_path = xml.find('path')
-    if not os.path.exists(classes+ class_folder.text+ '/'+file_name.text):
+    if file[(len(file)-3):] != 'xml':
         continue
-    size = xml.find("size")
-    width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
-    height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
-    # EXTRACT object details
-    setType = ""
-    isDuplicate = False
-    for k in range(len(validation_data)):
-        if i[classList.index(class_folder.text.lower())]  == k + offset:
-            setType = "VALIDATION"
-        else:
-            if setType!="VALIDATION":
-                setType = "TRAINING"
-    for k in range(len(test_data)):
-        if i[classList.index(class_folder.text.lower())]  == k + offset:
-            setType = "TEST"
-    isDuplicate = False 
-    for k in range(len(duplicates)):
-        if i[classList.index(class_folder.text.lower())]  == k + offset and setType == "TRAINING":
-            isDuplicate = True
-    # full_image_added = False
-    # for each annotations
+    xml = ElementTree.parse(annotations + file)
     annot_count = 0
     for object in xml.findall("object"):
         if(object):
             className = object.find('name')
-             # get path    
+            file_name = xml.find("filename")
             imagePath = classes + className.text + "/" + file_name.text 
+            if not os.path.exists(classes+ className.text+ '/'+file_name.text):
+                continue
+            size = xml.find("size")
+            width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
+            height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
+            # EXTRACT object details
+            setType = ""
+            isDuplicate = False
+            for k in range(len(validation_data)):
+                if i[classList.index(className.text.lower())]  == k + offset:
+                    setType = "TRAINVAL"
+                else:
+                    if setType!="TRAINVAL":
+                        setType = "TRAINVAL"
+            for k in range(len(test_data)):
+                if i[classList.index(className.text.lower())]  == k + offset:
+                    setType = "TEST"
+            isDuplicate = False 
+            for k in range(len(duplicates)):
+                if i[classList.index(className.text.lower())]  == k + offset and setType == "TRAINING":
+                    isDuplicate = True
+            # full_image_added = False
+            # for each annotations
+            # get path    
+           
             box = object.find("bndbox")
             xmin = ElementTree.tostringlist(box.find("xmin"), encoding='unicode')[2]
             ymin = ElementTree.tostringlist(box.find("ymin"), encoding='unicode')[2]
@@ -74,28 +84,41 @@ for file in os.listdir(annotations):
             xmaxValue = int(xmax)
             ymaxValue = int(ymax)
             # Add line to annot
-            f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
+            f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + ',' + setType +'\n')
             if annot_count == 0:
-                i[classList.index(class_folder.text.lower())] += 1   
-                if setType == "TRAINING":
-                    training_count[classList.index(class_folder.text.lower())] += 1
+                i[classList.index(className.text.lower())] += 1   
+                if setType == "TRAINVAL":
+                    training_count[classList.index(className.text.lower())] += 1
                 elif setType == "TEST":
-                    test_count[classList.index(class_folder.text.lower())] += 1
-                elif setType == "VALIDATION":
-                    validation_count[classList.index(class_folder.text.lower())] += 1
+                    test_count[classList.index(className.text.lower())] += 1
+                elif setType == "TRAINVAL":
+                    validation_count[classList.index(className.text.lower())] += 1
             # if(not full_image_added):
             #    full_image = [setType,imagePath, className.text, "0","0","","","1","1","",""]
             #    csvfile_writer.writerow(full_image)
             #    full_image_added = True
             if isDuplicate:
-                f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + '\n')
+                f.write(imagePath + ',' + str(xminValue) + ',' + str(yminValue) + ',' + str (xmaxValue) + ',' + str(ymaxValue) + ',' +  className.text + ',' + setType + '\n')
                 if annot_count == 0:
-                    training_count[classList.index(class_folder.text.lower())] += 1
-                    i[classList.index(class_folder.text.lower())] += 1    
+                    training_count[classList.index(className.text.lower())] += 1
+                    i[classList.index(className.text.lower())] += 1    
             annot_count += 1
 
+total = 0
 for i in range(len(classList)):
-    print(classList[i] + ":\n\t{TRAINING=" + str(training_count[i])+ ", TEST=" +str(test_count[i])+", VALIDATION="+str(validation_count[i])+ "}")
+    print(classList[i] + ":\n\t{TrainVal =" + str(training_count[i] + validation_count[i]) + "}")
+    print("\t{Test =" + str( test_count[i]) + "}")
+    total += training_count[i] + validation_count[i]
+
+print("Total Images = "+  str(total))
+bgCount = 0
+if options.includeBackground:
+    for file in os.listdir(classes + "bg"):
+        img = cv2.imread(classes+ "bg/" + file)
+        (h, w, _) = img.shape
+        f.write(classes + "bg/" + file + ',' + str(1) + ',' + str(1) + ',' + str (w-1) + ',' + str(h-1) + ',' +  "bg"+ ","+ "TRAINVAL "+ '\n')
+        bgCount+=1
+print("Background Images = " + str (bgCount))
 print("Done.")
 
 f.close()

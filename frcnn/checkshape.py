@@ -1,10 +1,16 @@
 import os
 import tensorflow as tf
-model_path = "./rcnn.tflite"
+model_path = "./model_classifier.tflite"
 mymodel = tf.lite.Interpreter(model_path=model_path)
 mymodel.allocate_tensors()
 output = mymodel.get_output_details()
-print(output)
+input = mymodel.get_input_details()
+print("INPUT TENSORS:")
+index = 0
+for i in input:
+    print(input[index]['shape'])
+    index+=1
+print("OUTPUT TENSORS:")
 index = 0
 for i in output:
     print(output[index]['shape'])
