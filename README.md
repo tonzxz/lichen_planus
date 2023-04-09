@@ -9,6 +9,11 @@ pip install pillow==9.3.0
 pip install matplotlib  
 pip install scikit-learn==1.1.3  
 pip install opencv-python  
+-----------------------------------  
+Start a flutter project  
+Copy files from flutter folder to project folder  
+** Flutter project must contain a model, train and deploy a model first **  
+** use "python tflite.py --deploy" to deploy model to the flutter project **  
 
 References:  
 https://github.com/indiantechwarrior/faster_rcnn_tensorflow  
