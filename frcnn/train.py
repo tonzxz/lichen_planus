@@ -287,7 +287,7 @@ if C.network == 'resnet':
     optimizer_classifier = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
 elif C.network == 'mobilenetv1' or C.network == 'mobilenetv2':
     rpnLR = C.epsilon
-    clsLR = round(C.epsilon - 1e-4, 4)
+    clsLR = C.epsilon
     print("RPN Optimizer: ADAM - " + str(rpnLR))
     optimizer = Adam(learning_rate=rpnLR, clipnorm=0.001)
     print("Classifier Optimizer: ADAM - " + str(clsLR))
