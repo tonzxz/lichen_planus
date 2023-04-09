@@ -12,7 +12,7 @@ pip install matplotlib
 pip install scikit-learn==1.1.3  
 pip install opencv-python  
 
-python compileannotations.py ** python compileannotations.py --bg, if there are background images **  
+python compileannotations.py ( python compileannotations.py --bg, if there are background images )  
 python train.py  
 python tflite.py --deploy  
 
