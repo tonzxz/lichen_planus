@@ -26,7 +26,7 @@
   Copy files from flutter folder to project folder  
   ** Flutter project must contain a model, train and deploy a model before running the app **  
   ** use "python tflite.py --deploy" to deploy a model to the flutter project **  
-  ** Provide proper labels in classifier.dart **
+  ** Provide proper labels in classifier.dart **  
   flutter run  
   flutter build apk ( build apk )  
 
