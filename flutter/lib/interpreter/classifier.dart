@@ -31,9 +31,9 @@ class Classifier {
   List<List<int>>? _rpnOutputShapes;
   List<List<int>>? _clsOutputShapes;
   // Provide labels from training [class_mapping]
-  final List<String> _labels = [
+  final List<String> labels = [
     "Annular Lichen Planus",
-    "Linear Lichehn Planus",
+    "Linear Lichen Planus",
     "Hypertropic Lichen Planus",
     "???"
   ];
@@ -198,7 +198,8 @@ class Classifier {
     _rpnInterpreter!.close();
     // Then we calculate the features from the output of the rpn model (RPN TO ROI)
     // List<int> anchorSizes = [32, 64, 128];
-    double scaler = 1.2;
+    // Match anchors from Config.py
+    double scaler = 0.7;
     List<double> anchorSizes = [64 * (scaler), 128 * (scaler), 256 * (scaler)];
     List<List<double>> anchorRatios = [
       [1, 1],
@@ -406,7 +407,7 @@ class Classifier {
             predictedClass == PclsLayer.shape[2] - 1) {
           continue;
         }
-        String className = _labels.elementAt(predictedClass);
+        String className = labels.elementAt(predictedClass);
 
         if (!bboxes.containsKey(className)) {
           bboxes[className] = [];
@@ -474,5 +475,5 @@ class Classifier {
   Interpreter get clsInterpreter => _clsInterpreter!;
 
   /// Gets the loaded labels
-  List<String> get labels => _labels!;
+  // List<String> get labels => _labels!;
 }
