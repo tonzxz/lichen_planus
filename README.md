@@ -12,7 +12,11 @@ pip install matplotlib
 pip install scikit-learn==1.1.3  
 pip install opencv-python  
 
-Start a flutter project  
+python compileannotations.py ** python compileannotations.py --bg, if there are background images **  
+python train.py  
+python tflite.py --deploy  
+
+Start a flutter project   
 Copy files from flutter folder to project folder  
 ** Flutter project must contain a model, train and deploy a model before running the app **  
 ** use "python tflite.py --deploy" to deploy a model to the flutter project **  
