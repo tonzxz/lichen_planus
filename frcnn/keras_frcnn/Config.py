@@ -30,11 +30,11 @@ class Config:
         self.viewPos = 1
         self.classView = 1
         # Resize anchors
-        self.scaler = 0.7
+        self.scaler = 0.75
         # Learning Rate
-        self.epsilon = 4e-5
+        self.epsilon = 3e-5
          # Set epochs for training
-        self.epochs = 20
+        self.epochs = 15
 
         # Setting for data augmentation
         self.use_horizontal_flips = False
@@ -47,11 +47,6 @@ class Config:
         self.anchor_box_scales = [int(64*(self.scaler)), int(128*(self.scaler)), int(256*(self.scaler))] 
         # Anchor box ratios
         self.anchor_box_ratios = [[1, 1], [1.4/math.sqrt(2), 1.7/math.sqrt(2)], [1.7/math.sqrt(2), 1.4/math.sqrt(2)]]
-        # self.anchor_box_ratios =[[1./math.sqrt(2),1./math.sqrt(2)], [1./math.sqrt(2), 2./math.sqrt(2)], [2./math.sqrt(2), 1./math.sqrt(2)]]
-        # self.anchor_box_ratios =[[1./math.sqrt(2),1./math.sqrt(2)], [1./math.sqrt(2), 2./math.sqrt(2)], [2./math.sqrt(2), 1./math.sqrt(2)]]
-        # self.anchor_box_ratios =[[1./math.sqrt(2), 1.2/math.sqrt(2)], [1.2/math.sqrt(2), 1./math.sqrt(2)],[1./math.sqrt(2), 2./math.sqrt(2)],[2./math.sqrt(2), 1./math.sqrt(2)]]
-        # self.anchor_box_ratios =[[1.2,1.2/math.sqrt(2)], [1.2/math.sqrt(2), 1.2],[1./math.sqrt(2), 3./math.sqrt(2)],[3./math.sqrt(2), 1./math.sqrt(2)]]
-        # self.anchor_box_ratios =[[1,1], [1, 2], [2, 1]]
         # Size to resize the smallest side of the image
         # Original setting in paper is 600. Set to 300 in here to save training time
         self.im_size = 224
