@@ -32,8 +32,9 @@ from keras_frcnn.utils import class_loss_cls,class_loss_regr,rpn_loss_cls,rpn_lo
 from optparse import OptionParser
 
 commands = OptionParser()
+commands.add_option("--c",dest="previousWeight", help="Continue from specified weights.",default=None)
 commands.add_option("--r",dest="restart", help="Restart training from pretrained weights.", action="store_true",default=False)
-commands.add_option("--err",dest="rpn_err", help="Check if there is errors on rpn generations",action="store_true",default=False)
+commands.add_option("--E",dest="rpn_err", help="Check if there are errors on rpn generation.",action="store_true",default=False)
 (options, args) = commands.parse_args()
 
 # Training 
@@ -41,8 +42,6 @@ commands.add_option("--err",dest="rpn_err", help="Check if there is errors on rp
 base_path = ''
 
 train_path =  'annotation.txt' # Training data (annotation file)
-
-num_rois = 4 # Number of RoIs to process at once.
 
 # Augmentation flag
 horizontal_flips = True # Augment with horizontal flips in training. 
@@ -64,7 +63,9 @@ C.rot_90 = rot_90
 
 C.record_path = record_path
 C.model_path = output_weight_path
-C.num_rois = num_rois
+if options.previousWeight != None:
+    C.model_path = options.previousWeight
+num_rois = C.num_rois # Number of RoIs to process at once.
 
 input_size = [C.im_size, C.im_size]
 
@@ -260,21 +261,24 @@ else:
     print('Loading weights from {}'.format(C.model_path))
     model_rpn.load_weights(C.model_path, by_name=True)
     model_classifier.load_weights(C.model_path, by_name=True)
-    
-    # Load the records
-    record_df = pd.read_csv(record_path)
 
-    r_mean_overlapping_bboxes = record_df['mean_overlapping_bboxes']
-    r_class_acc = record_df['class_acc']
-    r_loss_rpn_cls = record_df['loss_rpn_cls']
-    r_loss_rpn_regr = record_df['loss_rpn_regr']
-    r_loss_class_cls = record_df['loss_class_cls']
-    r_loss_class_regr = record_df['loss_class_regr']
-    r_curr_loss = record_df['curr_loss']
-    r_elapsed_time = record_df['elapsed_time']
-    r_mAP = record_df['mAP']
+    if options.previousWeight != None:
+        record_df = pd.DataFrame(columns=['mean_overlapping_bboxes', 'class_acc', 'loss_rpn_cls', 'loss_rpn_regr', 'loss_class_cls', 'loss_class_regr', 'curr_loss', 'elapsed_time', 'mAP'])
+    else:
+        # Load the records
+        record_df = pd.read_csv(record_path)
 
-    print('Already trained %d epochs'% (len(record_df)))
+        r_mean_overlapping_bboxes = record_df['mean_overlapping_bboxes']
+        r_class_acc = record_df['class_acc']
+        r_loss_rpn_cls = record_df['loss_rpn_cls']
+        r_loss_rpn_regr = record_df['loss_rpn_regr']
+        r_loss_class_cls = record_df['loss_class_cls']
+        r_loss_class_regr = record_df['loss_class_regr']
+        r_curr_loss = record_df['curr_loss']
+        r_elapsed_time = record_df['elapsed_time']
+        r_mAP = record_df['mAP']
+
+        print('Already trained %d epochs'% (len(record_df)))
 
 # optimizer = Adam(lr=1e-5)
 # optimizer_classifier = Adam(lr=1e-5)
@@ -473,7 +477,12 @@ for epoch_num in range(num_epochs):
 
                 record_df = record_df.append(new_row, ignore_index=True)
                 record_df.to_csv(record_path, index=0)
-
+                try:
+                    import winsound
+                    winsound.Beep(37,100)
+                    winsound.Beep(1500,250)
+                except:
+                    print("")
                 break
 
         except Exception as e:
@@ -481,14 +490,15 @@ for epoch_num in range(num_epochs):
             continue
 
 
-# plt.figure(figsize=(15,5))
-# plt.subplot(1,2,1)
-# plt.plot(np.arange(0, r_epochs), record_df['mean_overlapping_bboxes'], 'r')
-# plt.title('mean_overlapping_bboxes')
-# plt.subplot(1,2,2)
-# plt.plot(np.arange(0, r_epochs), record_df['class_acc'], 'r')
-# plt.title('class_acc')
+plt.figure(figsize=(15,5))
+plt.subplot(1,2,1)
+plt.plot(np.arange(0, r_epochs), record_df['mean_overlapping_bboxes'], 'r')
+plt.title('mean_overlapping_bboxes')
+plt.subplot(1,2,2)
+plt.plot(np.arange(0, r_epochs), record_df['class_acc'], 'r')
+plt.title('class_acc')
 
+plt.savefig('accuracyplot.png')
 # plt.show()
 
 # plt.figure(figsize=(15,5))
@@ -532,13 +542,14 @@ try:
     winsound.Beep(600,500)
 except:
     print("")
-
+    
+plt.figure(figsize=(15,5))
 plt.title('Loss(M): rpn_cls(B), rpn_regr(G), class_cls(R), cls_regr(C)')
 plt.plot(np.arange(0, r_epochs), record_df['loss_rpn_cls'], 'b')
 plt.plot(np.arange(0, r_epochs), record_df['loss_rpn_regr'], 'g')
 plt.plot(np.arange(0, r_epochs), record_df['loss_class_cls'], 'r')
 plt.plot(np.arange(0, r_epochs), record_df['loss_class_regr'], 'c')
 plt.plot(np.arange(0, r_epochs), record_df['curr_loss'], 'm')
+plt.savefig("lossesplot.png")
 plt.show()
-
 print('Training complete, exiting.')
