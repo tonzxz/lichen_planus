@@ -23,12 +23,13 @@ from keras_frcnn.Config import Config
 from keras_frcnn.utils import get_data,get_real_coordinates
 from keras_frcnn.utils import format_img
 from keras_frcnn.utils import rpn_to_roi,non_max_suppression_fast,apply_regr, get_map
+from optparse import OptionParser
+
+
 # Configuration 
 base_path = ''
 
 test_path =  'annotation.txt' # Training data (annotation file)
-
-num_rois = 4 # Number of RoIs to process at once.
 
 # Augmentation flag
 horizontal_flips = True # Augment with horizontal flips in training. 
@@ -37,21 +38,25 @@ rot_90 = True           # Augment with 90 degree rotations in training.
 
 output_weight_path = os.path.join(base_path, 'model/model__frcnn__vgg.hdf5')
 
+commands = OptionParser()
+commands.add_option("--map",dest="getMap", help="Get mAP of model.", action="store_true",default=False)
+commands.add_option("--d",dest="modelPath", help="Provide directory of saved weights.",default=output_weight_path)
+(options, args) = commands.parse_args()
+
+
 record_path = os.path.join(base_path, 'model/record.csv') # Record data (used to save the losses, classification accuracy and mean average precision)
 
 config_output_filename = os.path.join(base_path, 'model_vgg_config.pickle')
 
 # Create the config
 C = Config()
-
+num_rois = C.num_rois # Number of RoIs to process at once.
 C.use_horizontal_flips = horizontal_flips
 C.use_vertical_flips = vertical_flips
 C.rot_90 = rot_90
 
 C.record_path = record_path
-C.model_path = output_weight_path
-C.num_rois = num_rois
-
+C.model_path = options.modelPath
 input_size = C.im_size
 
 
@@ -118,34 +123,37 @@ class_mapping = {v: k for k, v in class_mapping.items()}
 print(class_mapping)
 class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
      
-# test_base_path = "test"
+test_base_path = "test"
 result_path = "results/"
-# test_imgs = os.listdir(test_base_path)
-# test_imgs,_,_ = get_data(train_path, mode="TEST")
+
+if not options.getMap:
+    test_imgs = os.listdir(test_base_path)
 
 imgs_path = []
     
-# test_imgs = [s for s in all_imgs if s['imageset'] == 'test']
 
 # If the box classification value is less than this, we ignore this box
 bbox_threshold = 0.1
 T = {}
 P = {}
 for idx, img_data in enumerate(test_imgs):
-    filename = os.path.basename(img_data['filepath']).split('/')[-1]
-    # filename = img_data
+    if options.getMap:
+        filename = os.path.basename(img_data['filepath']).split('/')[-1]
+        filepath = img_data['filepath']
+    else:
+        filename = img_data
+        filepath = os.path.join(test_base_path,filename)
     if not filename.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff')):
         continue
     
     st = time.time()
-    filepath = img_data['filepath']
-    # filepath = os.path.join(test_base_path,filename)
+    
     img = cv2.imread(filepath)
 
     X,fx,fy,ratio = format_img(img, C)
-    
+    # c h w
+    # 0 h w c
     X = np.transpose(X, (0, 2, 3, 1))
-
     # get output layer Y1, Y2 from the RPN and the feature maps F
     # Y1: y_rpn_cls
     # Y2: y_rpn_regr
@@ -154,7 +162,7 @@ for idx, img_data in enumerate(test_imgs):
     # Get bboxes by applying NMS 
     # R.shape = (300, 4)
     R = rpn_to_roi(Y1, Y2, C,K.set_image_data_format('channels_last'), overlap_thresh=0.7)
-    
+
     # convert from (x1,y1,x2,y2) to (x,y,w,h)
     R[:, 2] -= R[:, 0]
     R[:, 3] -= R[:, 1]
@@ -163,9 +171,10 @@ for idx, img_data in enumerate(test_imgs):
     bboxes = {}
     probs = {}
     for jk in range(R.shape[0]//C.num_rois + 1):
-        # if jk * C.num_rois > 64:
+        # if jk >= 16:
         #     break
         ROIs = np.expand_dims(R[C.num_rois*jk:C.num_rois*(jk+1), :], axis=0)
+        # print(ROIs);
         if ROIs.shape[1] == 0:
             break
         if jk == R.shape[0]//C.num_rois:
@@ -239,26 +248,43 @@ for idx, img_data in enumerate(test_imgs):
     cv2.imwrite(result_path + filename, img)
     print("\""+ result_path + filename+ "\"")
 
-    t, p = get_map(all_dets, img_data['bboxes'], (fx, fy))
-    for key in t.keys():
-        if key not in T:
-            T[key] = []
-            P[key] = []
-        T[key].extend(t[key])
-        P[key].extend(p[key])
-    all_aps = []
-    for key in T.keys():
-        ap = average_precision_score(T[key], P[key])
-        # print('{} AP: {}'.format(key, ap))
-        all_aps.append(ap)
-    # print('mAP = {}'.format(np.mean(np.array(all_aps))))
-    # print("")
+    if options.getMap:
+        t, p = get_map(all_dets, img_data['bboxes'], (fx, fy))
+        for key in t.keys():
+            if key not in T:
+                T[key] = []
+                P[key] = []
+            T[key].extend(t[key])
+            P[key].extend(p[key])
+        all_aps = []
+        for key in T.keys():
+            ap = average_precision_score(T[key], P[key])
+            # print('{} AP: {}'.format(key, ap))
+            all_aps.append(ap)
+        # print('mAP = {}'.format(np.mean(np.array(all_aps))))
+        # print("")
 
-print("Test T/P")
-for key in T.keys():
-    print(str(key) + ":\n\tT:" + str(T[key]))
-    print("\tP:" + str(P[key]))
-print('\nmAP = {}'.format(np.mean(np.array(all_aps))))
+if options.getMap:
+    print("Test T/P")
+    T_all = []
+    P_all = []
+    for key in T.keys():
+        T_all.extend(T[key])
+        P_all.extend(P[key])
+        print(str(key) + ":\n\tT:" + str(T[key]))
+        print("\tP:" + str(P[key]))
+    print('\nmAP = {}'.format(np.mean(np.array(all_aps))))
+    # Calculate Accuracy
+    TP = 0 
+    TN = 0
+    for i in range(len(T_all)):
+        if T_all[i] != 0 and P_all[i] != 0:
+            TP+=1
+        elif T_all[i] == 0 and P_all[i] == 0:
+            TN+=1 
+
+print('\nAccuracy = {}'.format((TP+TN)/float(len(T_all))))
+
 try:
     import winsound
     winsound.Beep(37,100)
