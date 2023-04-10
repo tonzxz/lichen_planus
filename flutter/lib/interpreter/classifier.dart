@@ -39,7 +39,7 @@ class Classifier {
   ];
 
   /// Number of results to show
-  static const int NUM_RESULTS = 8; // batches
+  static const int NUM_RESULTS = 1; // batches
   static const int MAX_RPN_BOXES = 300;
 
   int? _numROIS;
@@ -55,7 +55,7 @@ class Classifier {
     try {
       _clsInterpreter = await Interpreter.fromAsset(
         MODEL_CLASSIFIER_FILENAME,
-        options: InterpreterOptions()..threads = 4,
+        options: InterpreterOptions()..threads = 1,
       );
     } catch (e) {
       print("Error while creating interpreter: $e");
@@ -66,21 +66,12 @@ class Classifier {
     try {
       _rpnInterpreter = await Interpreter.fromAsset(
         MODEL_RPN_FILENAME,
-        options: InterpreterOptions()..threads = 4,
+        options: InterpreterOptions()..threads = 1,
       );
     } catch (e) {
       print("Error while creating rpn interpreter: $e");
     }
   }
-
-  // /// Loads labels from assets
-  // void loadLabels() async {
-  //   try {
-  //     _labels = await FileUtil.loadLabels("assets/" + LABEL_FILE_NAME);
-  //   } catch (e) {
-  //     print("Error while loading labels: $e");
-  //   }
-  // }
 
   List<int> applyRegr(double x, y, w, h, tx, ty, tw, th) {
     double cx = x + (w / 2);
@@ -171,6 +162,7 @@ class Classifier {
         _rpnInterpreter!.getOutputTensors()[0].type);
     // Preprocess image channels according to model
     final data = image.getBytes();
+
     List<double> imageAsList = List<double>.filled(
         inputImage.shape[1] * inputImage.shape[2] * inputImage.shape[3], 0.0);
     List<double> imgchannelmean = [103.939, 116.779, 123.68];
@@ -181,8 +173,10 @@ class Classifier {
         index++;
       }
     }
+    // print(imageAsList[index - 3] + imgchannelmean[0]);
+    // print(imageAsList[index - 2] + imgchannelmean[1]);
+    // print(imageAsList[index - 1] + imgchannelmean[2]);
     inputImage.loadBuffer(Float32List.fromList(imageAsList).buffer);
-    // TensorImage inputImage = TensorImage.fromImage(image);
     // Use [TensorImage.buffer] or [TensorBuffer.buffer] to pass by reference
     List<Object> inputs = [inputImage.buffer];
     TensorBuffer regrLayer = TensorBuffer.createFixedSize(
@@ -206,17 +200,6 @@ class Classifier {
       [1.4 / sqrt(2), 1.7 / sqrt(2)],
       [1.7 / sqrt(2), 1.4 / sqrt(2)],
     ];
-    // List<List<double>> anchorRatios = [
-    //   [1 / sqrt(2), 1 / sqrt(2)],
-    //   [1 / sqrt(2), 2 / sqrt(2)],
-    //   [2 / sqrt(2), 1 / sqrt(2)],
-    // ];
-    // List<List<double>> anchorRatios = [
-    //   [1.2, 1.2 / sqrt(2)],
-    //   [1.2 / sqrt(2), 1.2],
-    //   [1 / sqrt(2), 3 / sqrt(2)],
-    //   [3 / sqrt(2), 1 / sqrt(2)]
-    // ];
 
     double rpnStride = 16;
 
@@ -338,8 +321,7 @@ class Classifier {
       i--;
     }
     // non max supression fast
-    var result =
-        await nonMaxSuppressionFast(allBoxes, allProbs, 0.7, MAX_RPN_BOXES);
+    var result = nonMaxSuppressionFast(allBoxes, allProbs, 0.7, MAX_RPN_BOXES);
     // Connvert to x y w h
     for (int i = 0; i < result[2]; i++) {
       result[0][i][2] -= result[0][i][0];
@@ -356,21 +338,11 @@ class Classifier {
     loadClassifierModel();
 
     _numROIS = _clsInterpreter!.getInputTensors()[1].shape[1];
-    print(_numROIS);
     List<double> ROIS = List<double>.filled(_numROIS! * 4, 0.0);
 
     for (int i = 0; i < (result[2] / _numROIS) + 1; i++) {
       if (i >= NUM_RESULTS) {
         break;
-      }
-      for (int j = 0; j < _numROIS!; j++) {
-        for (int k = 0; k < 4; k++) {
-          if (j + (i * _numROIS!) < result[2]) {
-            ROIS[(j * 4) + k] = (result[0][j + (i * _numROIS!)][k]).toDouble();
-          } else {
-            ROIS[(j * 4) + k] = ROIS[k];
-          }
-        }
       }
       for (int j = 0; j < _numROIS!; j++) {
         for (int k = 0; k < 4; k++) {
@@ -396,7 +368,9 @@ class Classifier {
 
       List<Object> clsInputs = [inputImage.buffer, inputROIS.buffer];
       Map<int, Object> clsOuputs = {0: PregrLayer.buffer, 1: PclsLayer.buffer};
+
       _clsInterpreter!.runForMultipleInputs(clsInputs, clsOuputs);
+
       for (int ii = 0; ii < PclsLayer.shape[1]; ii++) {
         for (int p = 0; p < PclsLayer.shape[2]; p++) {
           predictions[p] =
@@ -450,7 +424,7 @@ class Classifier {
     List<Recognition> recognitions = [];
     // Detections
     bboxes.forEach((key, boxes) {
-      result = nonMaxSuppressionFast(boxes, probs[key]!, 0.3, NUM_RESULTS);
+      result = nonMaxSuppressionFast(boxes, probs[key]!, 0.2, MAX_RPN_BOXES);
       for (int i = 0; i < result[2]; i++) {
         recognitions.add(Recognition(
             i,

@@ -101,7 +101,7 @@ class Classifier {
     TensorImage inputImage = TensorImage.fromImage(image);
 
     // Pre-process TensorImage
-    // inputImage = getProcessedImage(inputImage);
+    inputImage = getProcessedImage(inputImage);
 
     // TensorBuffers for output tensors
     TensorBuffer outputLocations = TensorBufferFloat(_outputShapes![1]);

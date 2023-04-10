@@ -26,7 +26,6 @@ class SetPhotoScreen extends StatefulWidget {
 class _SetPhotoScreenState extends State<SetPhotoScreen> {
   File? _image;
   File? _labeled;
-
   String? _predictedLabel;
   String? _accuracy;
   String _description =
@@ -36,7 +35,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
   double? _imageDisplaySize;
   img.BitmapFont? _robotoFont;
   bool _isLoading = false;
-
+  bool _confirmed = false;
   // TFLite Features //
   //  Initialization
   @override
@@ -63,6 +62,8 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
         width: IMAGE_SIZE,
         height: IMAGE_SIZE,
         interpolation: img.Interpolation.cubic); // resiize]
+    // reduced = img.copyRotate(reduced, 90);
+    // reduced = img.flipVertical(reduced);
     // exit function if classifier object is not initialized
     if (_classifier == null) return;
     List<Recognition> recognitions = await _classifier!.predict(reduced);
@@ -139,15 +140,19 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
       image = await _cropImage(imageFile: image);
       if (image == null) return;
       setState(() {
-        _isLoading = true;
         Navigator.of(context).pop();
+        _isLoading = true;
       });
       await Future.delayed(const Duration(seconds: 1));
       await _classifyImage(image);
+      setState(() {
+        _confirmed = true;
+      });
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
-        _image = image;
         _isLoading = false;
+        _confirmed = false;
+        _image = image;
       });
     } on PlatformException catch (e) {
       print(e);
@@ -189,7 +194,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
 
   void _showResultsDetails(BuildContext context) {
     showModalBottomSheet(
-      backgroundColor: const Color.fromARGB(255, 252, 252, 252),
+      backgroundColor: Color.fromARGB(255, 252, 245, 245),
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -276,8 +281,11 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
 
   @override
   Widget build(BuildContext context) => _isLoading
-      ? const LoadingScreen()
+      ? LoadingScreen(
+          confirmed: _confirmed,
+        )
       : Scaffold(
+          backgroundColor: Color.fromARGB(255, 252, 245, 245),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(
@@ -303,7 +311,9 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                           ),
                           Text(
                             'Skin Rash Identifier',
-                            style: kHeadSubtitleTextStyle,
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(255, 138, 92, 92)),
                           ),
                         ],
                       ),
@@ -332,7 +342,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                               width: 300.0,
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Color.fromARGB(255, 250, 233, 233),
+                                color: Color.fromARGB(255, 233, 210, 210),
                               ),
                               child: Center(
                                 child: _image == null
@@ -341,7 +351,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                                         style: TextStyle(
                                             fontSize: 16,
                                             color: Color.fromARGB(
-                                                255, 170, 124, 124)),
+                                                255, 170, 129, 129)),
                                       )
                                     : CircleAvatar(
                                         backgroundImage: FileImage(_image!),
@@ -370,7 +380,9 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                           ? Text(
                               '$_predictedLabel',
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headline5,
+                              style: const TextStyle(
+                                  fontSize: 24,
+                                  color: Color.fromARGB(255, 94, 71, 71)),
                             )
                           : const Text(""),
                       const SizedBox(
