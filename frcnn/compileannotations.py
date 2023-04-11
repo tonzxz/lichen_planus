@@ -48,10 +48,11 @@ for file in os.listdir(annotations):
             file_name = xml.find("filename")
             imagePath = classes + className.text + "/" + file_name.text 
             if not os.path.exists(classes+ className.text+ '/'+file_name.text):
+                print(file_name.txt)
                 continue
-            size = xml.find("size")
-            width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
-            height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
+            # size = xml.find("size")
+            # width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
+            # height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
             # EXTRACT object details
             setType = ""
             isDuplicate = False
