@@ -150,7 +150,7 @@ for idx, img_data in enumerate(test_imgs):
     
     img = cv2.imread(filepath)
 
-    X,fx,fy,ratio = format_img(img, C)
+    X,fx,fy = format_img(img, C)
     # c h w
     # 0 h w c
     X = np.transpose(X, (0, 2, 3, 1))
@@ -256,22 +256,19 @@ for idx, img_data in enumerate(test_imgs):
                 P[key] = []
             T[key].extend(t[key])
             P[key].extend(p[key])
-        all_aps = []
-        for key in T.keys():
-            ap = average_precision_score(T[key], P[key])
-            # print('{} AP: {}'.format(key, ap))
-            all_aps.append(ap)
-        # print('mAP = {}'.format(np.mean(np.array(all_aps))))
-        # print("")
 
 if options.getMap:
-    print("Test T/P")
+    print("----------------\nmAP and accuracy from test images\n-------------------")
     T_all = []
     P_all = []
+    all_aps = []
     for key in T.keys():
+        ap = average_precision_score(T[key], P[key])
+        all_aps.append(ap)
         T_all.extend(T[key])
         P_all.extend(P[key])
-        print(str(key) + ":\n\tT:" + str(T[key]))
+        print('{} AP: {}'.format(key, ap))
+        print("\tT:" + str(T[key]))
         print("\tP:" + str(P[key]))
     print('\nmAP = {}'.format(np.mean(np.array(all_aps))))
     # Calculate Accuracy
@@ -283,7 +280,7 @@ if options.getMap:
         elif T_all[i] == 0 and P_all[i] == 0:
             TN+=1 
 
-print('\nAccuracy = {}'.format((TP+TN)/float(len(T_all))))
+print('Accuracy = {}'.format((TP+TN)/float(len(T_all))))
 
 try:
     import winsound
