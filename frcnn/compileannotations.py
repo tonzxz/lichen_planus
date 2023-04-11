@@ -47,12 +47,19 @@ for file in os.listdir(annotations):
             className = object.find('name')
             file_name = xml.find("filename")
             imagePath = classes + className.text + "/" + file_name.text 
-            if not os.path.exists(classes+ className.text+ '/'+file_name.text):
-                print(file_name.txt)
+            for o in xml.findall("object"):
+                # find true image path
+                if not os.path.exists(imagePath):                
+                    imagePath = classes + o.find('name').text + "/" + file_name.text 
+                else:
+                    break
+            if not os.path.exists(imagePath):                
                 continue
+            # annotaitons need to be presennted as floating point numbers
             # size = xml.find("size")
             # width = ElementTree.tostringlist(size.find("width"),encoding='unicode')[2]
             # height = ElementTree.tostringlist(size.find("height"),encoding='unicode')[2]
+            
             # EXTRACT object details
             setType = ""
             isDuplicate = False
