@@ -220,6 +220,7 @@ if options.viewDebug:
     plt.imshow(img)
     plt.show()
     exit()
+
 # Build Model
 input_shape_img = (input_size[0], input_size[1], 3)
 
@@ -316,13 +317,10 @@ model_all.compile(optimizer='sgd', loss='mae')
 # Training setting
 total_epochs = len(record_df)
 r_epochs = len(record_df)
-
-epoch_length = len(train_imgs)
 num_epochs = C.epochs
 iter_num = 0
-
+epoch_length = 100 #len(train_imgs)
 total_epochs += num_epochs
-
 losses = np.zeros((epoch_length, 5))
 rpn_accuracy_rpn_monitor = []
 rpn_accuracy_for_epoch = []
@@ -335,6 +333,7 @@ else:
 print("Best Loss : " + str(best_loss))
 prev_best = best_loss
 start_time = time.time()
+
 for epoch_num in range(num_epochs):
 
     progbar = generic_utils.Progbar(epoch_length)
@@ -344,7 +343,6 @@ for epoch_num in range(num_epochs):
 
     while True:
         try:
-
             if len(rpn_accuracy_rpn_monitor) == epoch_length and C.verbose:
                 mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor))/len(rpn_accuracy_rpn_monitor)
                 rpn_accuracy_rpn_monitor = []
@@ -468,7 +466,12 @@ for epoch_num in range(num_epochs):
                         print('Total loss decreased from {} to {}, saving weights'.format(best_loss,curr_loss))
                     best_loss = curr_loss
                     model_all.save_weights(output_weight_path)
-
+                    try:
+                        import winsound
+                        winsound.Beep(37,100)
+                        winsound.Beep(1500,250)
+                    except:
+                        print("")
                 new_row = {'mean_overlapping_bboxes':round(mean_overlapping_bboxes, 3), 
                            'class_acc':round(class_acc, 3), 
                            'loss_rpn_cls':round(loss_rpn_cls, 3), 
@@ -478,15 +481,9 @@ for epoch_num in range(num_epochs):
                            'curr_loss':round(curr_loss, 3), 
                            'elapsed_time':round(elapsed_time, 3), 
                            'mAP': 0}
-
                 record_df = record_df.append(new_row, ignore_index=True)
                 record_df.to_csv(record_path, index=0)
-                try:
-                    import winsound
-                    winsound.Beep(37,100)
-                    winsound.Beep(1500,250)
-                except:
-                    print("")
+               
                 break
 
         except Exception as e:
