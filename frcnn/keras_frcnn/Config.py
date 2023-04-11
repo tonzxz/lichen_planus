@@ -27,14 +27,14 @@ class Config:
         # Name of base network
         self.network = 'mobilenetv1'
         # Position of image to display on debug
-        self.viewPos = 1
+        self.viewPos = 4
         self.classView = 1
         # Resize anchors
-        self.scaler = 0.75
+        self.scaler = 1
         # Learning Rate
-        self.epsilon = 3e-5
+        self.epsilon = 4e-4
          # Set epochs for training
-        self.epochs = 15
+        self.epochs = 20
 
         # Setting for data augmentation
         self.use_horizontal_flips = False
@@ -69,7 +69,7 @@ class Config:
 
         # overlaps for RPN
         self.rpn_min_overlap = 0.3
-        self.rpn_max_overlap = 0.8
+        self.rpn_max_overlap = 0.9
 
         # overlaps for classifier ROIs
         self.classifier_min_overlap = 0.1
