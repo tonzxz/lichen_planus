@@ -30,9 +30,6 @@ def format_img_size(img, C):
     img_min_side = int(C.im_size)
     (height,width,_) = img.shape
         
-    # if width <= height:
-    ratio = img_min_side/float(width)
-
     fx = width/float(img_min_side)
     fy = height/float(img_min_side)
     # new_height = int(ratio * height)
@@ -42,7 +39,7 @@ def format_img_size(img, C):
     #     new_width = int(ratio * width)
     #     new_height = int(img_min_side)
     img = cv2.resize(img, (img_min_side, img_min_side), interpolation=cv2.INTER_CUBIC)
-    return img, fx, fy, ratio	
+    return img, fx, fy
 
 def format_img_channels(img, C):
     """ formats the image channels based on config """
@@ -53,14 +50,15 @@ def format_img_channels(img, C):
     img[:, :, 2] -= C.img_channel_mean[2]
     img /= C.img_scaling_factor
     img = np.transpose(img, (2, 0, 1))
+    # h w c
     img = np.expand_dims(img, axis=0)
     return img
 
 def format_img(img, C):
     """ formats an image for model prediction based on config """
-    img,fx,fy, ratio = format_img_size(img, C)
+    img,fx,fy = format_img_size(img, C)
     img = format_img_channels(img, C)
-    return img,fx,fy, ratio
+    return img,fx,fy
 
 # Method to transform the coordinates of the bounding box to its original size
 def get_real_coordinates(ratio, x1, y1, x2, y2):
@@ -411,7 +409,7 @@ def augment(img_data, config, augment=True):
     img_data_aug = copy.deepcopy(img_data)
     img = cv2.imread(img_data_aug['filepath'])
     
-    img = cv2.resize(img, (config.im_size, config.im_size), interpolation=cv2.INTER_CUBIC)
+    img = cv2.resize(img, (config.im_size*2, config.im_size*2), interpolation=cv2.INTER_CUBIC)
     for bbox in img_data_aug['bboxes']:
         bbox['x1'] = int(bbox['x1']) * (img.shape[1] / float(img_data_aug['width']))
         bbox['x2'] = int(bbox['x2']) * (img.shape[1] / float(img_data_aug['width']))
@@ -936,13 +934,14 @@ def rpn_to_roi(rpn_layer, regr_layer, C, dim_ordering, use_regr=True, max_boxes=
             A[3, :, :, curr_layer] = np.minimum(rows-1, A[3, :, :, curr_layer])
 
             curr_layer += 1
-
+    
     all_boxes = np.reshape(A.transpose((0, 3, 1, 2)), (4, -1)).transpose((1, 0))  # shape=(4050, 4)
     all_probs = rpn_layer.transpose((0, 3, 1, 2)).reshape((-1))                   # shape=(4050,)
     x1 = all_boxes[:, 0]
     y1 = all_boxes[:, 1]
     x2 = all_boxes[:, 2]
     y2 = all_boxes[:, 3]
+
 
     # Find out the bboxes which is illegal and delete them from bboxes list
     idxs = np.where((x1 - x2 >= 0) | (y1 - y2 >= 0))
