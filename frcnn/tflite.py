@@ -83,7 +83,6 @@ currentPath = ""
 if options.deploy:
     currentPath = os.getcwd();
     currentPath = os.path.dirname(currentPath)
-    currentPath = os.path.dirname(currentPath)
     currentPath += "\\assets\\"
 
 converter = tf.lite.TFLiteConverter.from_keras_model( model_classifier_only) 
