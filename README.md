@@ -29,14 +29,14 @@
   flutter run  
   flutter build apk ( build apk )  
   
- + Directory Tree +
- -flutter-proj:    
-     -**   
-     -android  
-     -assets      
-     -lib  
-     -test_icons  
-     -frcnn  
+ + Directory Structure +  
+ /flutter-proj:    
+     /**   
+     /android  
+     /assets      
+     /lib  
+     /test_icons  
+     /frcnn  
      -pubspec.yaml  
      -pubspec.lock  
      
