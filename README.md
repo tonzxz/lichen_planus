@@ -33,17 +33,17 @@
 
 <pre>
  /flutter-proj   
-    /**  
-    /android  
-    /assets     
-    /lib  
-    /test_icons  
-    /frcnn  
-       /**  
-       -train.py  
-       -tflite.py  
-    -pubspec.yaml  
-    -pubspec.lock
+      /**  
+      /android  
+      /assets     
+      /lib  
+      /test_icons  
+      /frcnn  
+           /**  
+           -train.py  
+           -tflite.py  
+      -pubspec.yaml  
+      -pubspec.lock
 </pre>
      
 
