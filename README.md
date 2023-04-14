@@ -37,9 +37,9 @@
  ...../lib  
  ...../test_icons  
  ...../frcnn  
- ......../**
- ........-train.py
- ........-tflite.py
+ ......../**  
+ ........-train.py  
+ ........-tflite.py  
  .....-pubspec.yaml  
  .....-pubspec.lock
 
