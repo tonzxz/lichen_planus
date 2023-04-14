@@ -30,7 +30,7 @@
   flutter build apk ( build apk )  
   
  + Directory Structure +  
- /flutter-proj   
+     /flutter-proj   
      /**  
      /android  
      /assets     
