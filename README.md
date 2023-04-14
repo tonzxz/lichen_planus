@@ -30,6 +30,7 @@
   flutter build apk ( build apk )  
   
  + Directory Structure +  
+ <pre>
  | /flutter-proj   
  |    /**  
  |    /android  
@@ -38,7 +39,8 @@
  |    /test_icons  
  |    /frcnn  
  |    -pubspec.yaml  
- |    -pubspec.lock  
+ |    -pubspec.lock
+ </pre>
      
 
 References:  
