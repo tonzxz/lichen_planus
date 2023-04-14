@@ -30,15 +30,15 @@
   flutter build apk ( build apk )  
   
  + Directory Structure +  
-      /flutter-proj   
-      /**  
-      /android  
-      /assets     
-     /lib  
-     /test_icons  
-     /frcnn  
-     -pubspec.yaml  
-     -pubspec.lock  
+ | /flutter-proj   
+ |    /**  
+ |    /android  
+ |    /assets     
+ |    /lib  
+ |    /test_icons  
+ |    /frcnn  
+ |    -pubspec.yaml  
+ |    -pubspec.lock  
      
 
 References:  
