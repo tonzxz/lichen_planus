@@ -150,6 +150,13 @@ for idx, img_data in enumerate(test_imgs):
     
     img = cv2.imread(filepath)
 
+    if options.getMap:
+        # Add ground truth boxes
+        for bboxes in img_data['bboxes']:
+            gt_x1,gt_x2 = bboxes['x1'], bboxes['x2']
+            gt_y1,gt_y2 = bboxes['y1'], bboxes['y2']
+            cv2.rectangle(img,(gt_x1,gt_y1), (gt_x2, gt_y2), (255,255,255),1)
+
     X,fx,fy = format_img(img, C)
     # c h w
     # 0 h w c
@@ -171,8 +178,8 @@ for idx, img_data in enumerate(test_imgs):
     bboxes = {}
     probs = {}
     for jk in range(R.shape[0]//C.num_rois + 1):
-        # if jk >= 16:
-        #     break
+        if jk >= 16:
+            break
         ROIs = np.expand_dims(R[C.num_rois*jk:C.num_rois*(jk+1), :], axis=0)
         # print(ROIs);
         if ROIs.shape[1] == 0:
@@ -270,7 +277,7 @@ if options.getMap:
         print('{} AP: {}'.format(key, ap))
         print("\tT:" + str(T[key]))
         print("\tP:" + str(P[key]))
-    print('\nmAP = {}'.format(np.mean(np.array(all_aps))))
+    print('mAP = {}'.format(np.mean(np.array(all_aps))))
     # Calculate Accuracy
     TP = 0 
     TN = 0
