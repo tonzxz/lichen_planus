@@ -91,6 +91,7 @@ C.base_net_weights = base_weight_path
 #--------------------------------------------------------#
 st = time.time()
 train_imgs, classes_count, class_mapping = get_data(train_path)
+#val_imgs, classes_count, class_mapping = get_data(train_path, mode = "VAL")
 print()
 print('Spend %0.2f mins to load the data' % ((time.time()-st)/60) )
 
@@ -120,6 +121,7 @@ print('Num train samples (images) {}'.format(len(train_imgs)))
 
 # Get train data generator which generate X, Y, image_data
 data_gen_train = get_anchor_gt(train_imgs, C, nn.get_img_output_length, mode='train')
+# data_gen_val = get_anchor_gt(val_imgs, C, nn.get_img_output_length, mode='val')
 
 if options.rpn_err:
     errorInAnchors = 0
@@ -291,16 +293,25 @@ else:
 # optimizer = Adam(lr=1e-3, clipnorm=0.001)
 # optimizer_classifier = Adam(lr=1e-3, clipnorm=0.001)
 if C.network == 'resnet':
-    print("Optimizer: SSD")
-    optimizer = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
-    optimizer_classifier = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
-elif C.network == 'mobilenetv1' or C.network == 'mobilenetv2':
+    # print("Optimizer: SSD")
+    # optimizer = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
+    # optimizer_classifier = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
     rpnLR = C.epsilon
-    clsLR = C.epsilon
+    clsLR = C.epsilon * C.multiplier
     print("RPN Optimizer: ADAM - " + str(rpnLR))
     optimizer = Adam(learning_rate=rpnLR, clipnorm=0.001)
     print("Classifier Optimizer: ADAM - " + str(clsLR))
     optimizer_classifier = Adam(learning_rate=clsLR, clipnorm=0.001)
+elif C.network == 'mobilenetv1' or C.network == 'mobilenetv2':
+    rpnLR = C.epsilon
+    clsLR = C.epsilon * C.multiplier
+    print("RPN Optimizer: ADAM - " + str(rpnLR))
+    optimizer = Adam(learning_rate=rpnLR, clipnorm=0.001)
+    print("Classifier Optimizer: ADAM - " + str(clsLR))
+    optimizer_classifier = Adam(learning_rate=clsLR, clipnorm=0.001)
+    # print("Optimizer: SSD")
+    # optimizer = SGD(learning_rate=rpnLR, decay=0.0005, momentum=0.9)
+    # optimizer_classifier = SGD(learning_rate=clsLR, decay=0.0005, momentum=0.9)
     # print("Optimizer: SSD - " + C.network )
     # optimizer = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
     # optimizer_classifier = SGD(learning_rate=C.epsilon, decay=0.0005, momentum=0.9)
@@ -319,7 +330,7 @@ total_epochs = len(record_df)
 r_epochs = len(record_df)
 num_epochs = C.epochs
 iter_num = 0
-epoch_length = 100 #len(train_imgs)
+epoch_length = 500
 total_epochs += num_epochs
 losses = np.zeros((epoch_length, 5))
 rpn_accuracy_rpn_monitor = []
@@ -352,22 +363,28 @@ for epoch_num in range(num_epochs):
 
             # Generate X (x_img) and label Y ([y_rpn_cls, y_rpn_regr])
             X, Y, img_data, debug_img, debug_num_pos = next(data_gen_train)
+            # val_X, val_Y, val_img_data, val_debug_img, val_debug_num_pos = next(data_gen_val)
 
             # Train rpn model and get loss value [_, loss_rpn_cls, loss_rpn_regr]
             loss_rpn = model_rpn.train_on_batch(X, Y)
+            #val_loss_rpn = model_rpn.test_on_batch(val_X,val_Y)
+
 
             # Get predicted rpn from rpn model [rpn_cls, rpn_regr]
             P_rpn = model_rpn.predict_on_batch(X)
+            # val_P_rpn = model_rpn.predict_on_batch(val_X)
 
             # R: bboxes (shape=(300,4))
             # Convert rpn layer to roi bboxes
             R = rpn_to_roi(P_rpn[0], P_rpn[1], C, K.set_image_data_format('channels_last'), use_regr=True, overlap_thresh=0.4, max_boxes=300)
-            
+            # val_R = rpn_to_roi(val_P_rpn[0], val_P_rpn[1], C, K.set_image_data_format('channels_last'), use_regr=True, overlap_thresh=0.4, max_boxes=300)
+           
             # note: calc_iou converts from (x1,y1,x2,y2) to (x,y,w,h) format
             # X2: bboxes that iou > C.classifier_min_overlap for all gt bboxes in 300 non_max_suppression bboxes
             # Y1: one hot code for bboxes from above => x_roi (X)
             # Y2: corresponding labels and corresponding gt bboxes
             X2, Y1, Y2, IouS = calc_iou(R, img_data, C, class_mapping)
+            # val_X2, val_Y1, val_Y2, val_IouS = calc_iou(val_R, val_img_data, C, class_mapping)
 
             # If X2 is None means there are no matching bboxes
             if X2 is None:
@@ -558,8 +575,10 @@ try:
 except:
     print("")
 
-if options.testing:
+if options.testing and best_loss < prev_best:
     os.system("python test.py --map")
+elif best_loss >= prev_best:
+    print("No better than previous best loss.")
 
 # plt.show()
 print('Training complete, exiting.')
