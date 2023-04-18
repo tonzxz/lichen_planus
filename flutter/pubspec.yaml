@@ -39,6 +39,8 @@ dependencies:
   image_picker: ^0.8.5+3
   image_cropper: ^2.0.3
   image: ^3.2.2
+  carousel_slider: ^4.0.0
+  smooth_page_indicator: ^1.0.1
   tflite_flutter_helper:
     git:
       url: https://github.com/filofan1/tflite_flutter_helper.git
@@ -73,6 +75,7 @@ flutter:
     - assets/model_classifier.tflite
     - assets/roboto.zip
     - assets/prototype1.png
+    - assets/use_guide/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
