@@ -23,7 +23,7 @@
 + Start a flutter project  +  
 
   Copy files from flutter folder to project folder  
-  run install.bat
+  run install.bat  
   ** Flutter project must contain a model, train and deploy a model before running the app **  
   ** use "python tflite.py --deploy" to deploy a model to the flutter project **  
   ** Provide proper labels in classifier.dart **  
