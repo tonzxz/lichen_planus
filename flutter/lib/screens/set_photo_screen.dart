@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'loading_screen.dart';
 import 'package:prototype1/interpreter/classifier.dart';
 import 'package:image/image.dart' as img;
 import 'package:prototype1/interpreter/recognitions.dart';
+import 'guide_screen.dart';
 
 // ignore: must_be_immutable
 class SetPhotoScreen extends StatefulWidget {
@@ -28,8 +30,112 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
   File? _labeled;
   String? _predictedLabel;
   String? _accuracy;
-  String _description =
-      "\t\tLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+  List _guideImages = [];
+  int _section = 0;
+  final _description = [
+    RichText(
+        textAlign: TextAlign.justify,
+        text: const TextSpan(
+            style: TextStyle(
+                color: Colors.black,
+                height: 2,
+                fontSize: 16,
+                fontWeight: FontWeight.w300),
+            children: <TextSpan>[
+              TextSpan(
+                  text: "Linear Lichen Planus",
+                  style: TextStyle(fontWeight: FontWeight.w400)),
+              TextSpan(
+                  text:
+                      " (LLP) is a rare form of lichen planus skin rash that affects the skin and/or the mouth. LLP affected people develop an itchy, reddish-purple, flat-topped papules (bumps) in a linear distribution along the Blaschko's line. It can occur anywhere on the body, but it is more commonly found on the limbs, trunk, or the patient's genital area."),
+            ])),
+    RichText(
+        textAlign: TextAlign.justify,
+        text: const TextSpan(
+            style: TextStyle(
+                color: Colors.black,
+                height: 2,
+                fontSize: 16,
+                fontWeight: FontWeight.w300),
+            children: <TextSpan>[
+              TextSpan(
+                  text: "Annular Lichen Planus",
+                  style: TextStyle(fontWeight: FontWeight.w400)),
+              TextSpan(
+                  text:
+                      " (ALP) is a rare form of lichen planus that affects the skin and/or the mouth. ALP affected people develop ring-shaped, slightly raised, red or purple lesions with no central atrophy (tissue breakdown)."),
+              TextSpan(
+                  text:
+                      "The rings may be solitary or multiple and can occur anywhere on the patient's body, but are commonly found on the arms, legs and the trunk.")
+            ])),
+    RichText(
+        textAlign: TextAlign.justify,
+        text: const TextSpan(
+            style: TextStyle(
+                color: Colors.black,
+                height: 2,
+                fontSize: 16,
+                fontWeight: FontWeight.w300),
+            children: <TextSpan>[
+              TextSpan(
+                  text: "Hypertrophic Lichen Planus",
+                  style: TextStyle(fontWeight: FontWeight.w400)),
+              TextSpan(
+                  text:
+                      " (HLP) is a common inflammatory skin condition that can affect different parts of the body, including the skin, mouth, nails, and hair. HLP typically appears as thick, raised, scaly or wart-like lesions on the skin. This lichen planus rash type is most commonly found on the shins, ankle, and lower back, but can also occur anywhere on the body."),
+            ]))
+  ];
+
+  final _treatments = RichText(
+      textAlign: TextAlign.justify,
+      text: const TextSpan(
+          style: TextStyle(
+              color: Colors.black,
+              height: 2,
+              fontSize: 16,
+              fontWeight: FontWeight.w300),
+          children: <TextSpan>[
+            TextSpan(
+                text:
+                    'There is no cure for lichen planus. The rashes are often observed to just go away on its own. If the symptoms are bothersome, dermatologists suggest the following treatments to bring relief and speed the healing process.\n\n'),
+            TextSpan(
+                text: 'Antihistamines',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(text: ': Pills the help alleviate itching.\n'),
+            TextSpan(
+                text: 'Topical Corticosteroid',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(
+                text:
+                    ' : Cream or ointments that are applied to the skin to reduce swelling and redness.\n'),
+            TextSpan(
+                text: 'Corticosteroids',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(
+                text:
+                    ' : Pills or shots that help when lichen planus lasts a long time and/or a patient has many bumps or sores.\n'),
+            TextSpan(
+                text: 'PUVA Therapy',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(
+                text:
+                    ' : A type of light treatment that can help clear the skin.\n'),
+            TextSpan(
+                text: 'Retinoic acid',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(
+                text:
+                    ' : Applied to the skin or given as a pill to clear the skin.\n'),
+            TextSpan(
+                text: 'Immunosuppressants',
+                style: TextStyle(fontWeight: FontWeight.w400)),
+            TextSpan(
+                text:
+                    ' : These medications work by suppressing the immune response that causes lichen planus.\n\n'),
+            TextSpan(
+                text:
+                    'They may be used in severe cases or when other treatments have failed.\n\nWhen lichen planus develops in the mouth, it often does not cause pain or other symptoms. If this is the case, treatments may not be necessary. When the rashes cause pain, burning, redness, blister, sores, or ulcers, it can be treated. Some medicine is applied on the sores while other medicines come in a pill form.\n\n'),
+          ]));
 
   Classifier? _classifier;
   double? _imageDisplaySize;
@@ -43,6 +149,23 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
     super.initState();
     _classifier = Classifier();
     _loadFonts();
+    _initImages();
+  }
+
+  Future _initImages() async {
+    // >> To get paths you need these 2 lines
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    // >> To get paths you need these 2 lines
+
+    final imagePaths = manifestMap.keys
+        .where((String key) => key.contains('use_guide/'))
+        .toList();
+
+    setState(() {
+      _guideImages = imagePaths;
+    });
   }
 
   Future _loadFonts() async {
@@ -147,6 +270,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
       await _classifyImage(image);
       setState(() {
         _confirmed = true;
+        _section = 3;
       });
       await Future.delayed(const Duration(seconds: 1));
       setState(() {
@@ -194,7 +318,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
 
   void _showResultsDetails(BuildContext context) {
     showModalBottomSheet(
-      backgroundColor: Color.fromARGB(255, 252, 245, 245),
+      backgroundColor: const Color.fromARGB(255, 252, 245, 245),
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -239,7 +363,7 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                       height: _imageDisplaySize! - 100,
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              alignment: Alignment.topCenter,
+                              alignment: Alignment.center,
                               image: FileImage(_labeled!),
                               fit: BoxFit.contain)),
                     ),
@@ -267,12 +391,20 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                     ),
                     Padding(
                         padding: const EdgeInsets.only(left: 25, right: 25),
-                        child: Text('$_description \n $_description',
-                            textAlign: TextAlign.justify,
-                            style: const TextStyle(
-                                height: 2,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w300)))
+                        child: _description[
+                            _classifier!.labels.indexOf(_predictedLabel!)]),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 25, right: 25),
+                      child: Text(
+                        '\nCOMMON DERMATOLOGICAL TREATMENTS FOR LICHEN PLANUS\n',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.only(left: 25, right: 25),
+                        child: _treatments)
                   ],
                 ));
           }),
@@ -298,29 +430,45 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          SizedBox(
+                        children: [
+                          const SizedBox(
                             height: 30,
                           ),
-                          Text(
-                            'Lichen Planus',
-                            style: kHeadTextStyle,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text(
-                            'Skin Rash Identifier',
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Color.fromARGB(255, 138, 92, 92)),
-                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: const [
+                                      Text(
+                                        'Lichen Planus',
+                                        style: kHeadTextStyle,
+                                      ),
+                                      SizedBox(
+                                        height: 12,
+                                      ),
+                                      Text(
+                                        'Skin Rash Identifier',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Color.fromARGB(
+                                                255, 138, 92, 92)),
+                                      )
+                                    ]),
+                                UserGuide(
+                                  items: _guideImages,
+                                  section: _section,
+                                )
+                              ]),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(
-                    height: 8,
+                    height: 20,
                   ),
                   Padding(
                     padding: const EdgeInsets.all(28.0),
@@ -402,7 +550,9 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
                         onTap: () => _showSelectPhotoOptions(context),
                         backgroundColor: const Color.fromARGB(255, 133, 99, 99),
                         textColor: Colors.white,
-                        textLabel: 'Add a Photo',
+                        textLabel: _image == null
+                            ? 'Upload a Photo'
+                            : "Upload New Photo",
                       ),
                     ],
                   ),

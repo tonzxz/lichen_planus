@@ -26,7 +26,7 @@ class CommonButtons extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 16,
-          horizontal: 6,
+          horizontal: 2,
         ),
         child: Text(
           textLabel,

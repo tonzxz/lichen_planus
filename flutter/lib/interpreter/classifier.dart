@@ -32,14 +32,14 @@ class Classifier {
   List<List<int>>? _clsOutputShapes;
   // Provide labels from training [class_mapping]
   final List<String> labels = [
-    "Annular Lichen Planus",
     "Linear Lichen Planus",
+    "Annular Lichen Planus",
     "Hypertropic Lichen Planus",
     "???"
   ];
 
   /// Number of results to show
-  static const int NUM_RESULTS = 1; // batches
+  static const int NUM_RESULTS = 16; // batches
   static const int MAX_RPN_BOXES = 300;
 
   int? _numROIS;
@@ -193,12 +193,12 @@ class Classifier {
     // Then we calculate the features from the output of the rpn model (RPN TO ROI)
     // List<int> anchorSizes = [32, 64, 128];
     // Match anchors from Config.py
-    double scaler = 0.7;
+    double scaler = 224 / 300;
     List<double> anchorSizes = [64 * (scaler), 128 * (scaler), 256 * (scaler)];
     List<List<double>> anchorRatios = [
       [1, 1],
-      [1.4 / sqrt(2), 1.7 / sqrt(2)],
-      [1.7 / sqrt(2), 1.4 / sqrt(2)],
+      [1, 2],
+      [2, 1],
     ];
 
     double rpnStride = 16;
@@ -426,12 +426,14 @@ class Classifier {
     bboxes.forEach((key, boxes) {
       result = nonMaxSuppressionFast(boxes, probs[key]!, 0.2, MAX_RPN_BOXES);
       for (int i = 0; i < result[2]; i++) {
-        recognitions.add(Recognition(
-            i,
-            key,
-            result[1][i],
-            Rect.fromLTRB(result[0][i][0], result[0][i][1], result[0][i][2],
-                result[0][i][3])));
+        recognitions.add(
+          Recognition(
+              i,
+              key,
+              result[1][i],
+              Rect.fromLTRB(result[0][i][0], result[0][i][1], result[0][i][2],
+                  result[0][i][3])),
+        );
       }
     });
     if (recognitions.isEmpty) {
