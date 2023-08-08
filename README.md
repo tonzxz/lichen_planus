@@ -19,8 +19,7 @@ Our proposed system deals with dermatology and can greatly aid the health sector
      
 + Interface +  
   
-<img align="center" src="screenshots/camera.jpg " width="320" height="680"> <img align="center" src="screenshots/camera-negative.jpg " width="320" height="680"> < align="center"img src="screenshots/detect-camera.jpg " width="320" height="680">  
-<img align="center" src="screenshots/detections.png " width="320" height="600"> <img align="center" src="screenshots/manual.png " width="320" height="600"> <img align="center" src="screenshots/diagnosis.png " width="320" height="600">
+<img src="screenshots/camera.jpg " width="320" height="680"> <img src="screenshots/camera-negative.jpg " width="320" height="680"> <img src="screenshots/detect-camera.jpg " width="320" height="680"> <img src="screenshots/detections.png " width="320" height="600"> <img src="screenshots/manual.png " width="320" height="600"> <img src="screenshots/diagnosis.png " width="320" height="600">
 
 + Setup FRCNN Workspace +   
   ** Add frcnn folder into flutter project to directly deploy a tflite model **  
