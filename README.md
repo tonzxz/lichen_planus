@@ -1,7 +1,7 @@
 -----------------------------------  
 # Lichen Planus Rash Detection using FRCNN (Flutter App)
 -----------------------------------  
-![Alt Text](screenshots/boot.png =250x250)  
+<img src="screenshots/boot.png " width="100" height="100">
 ![Alt Text](screenshots/detect-camera.jpg =250x250)  
 ![Alt Text](screenshots/camera.jpg =250x250)  
 ![Alt Text](screenshots/camera-negative.jpg =250x250)  
