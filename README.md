@@ -1,7 +1,7 @@
 -----------------------------------  
 # Lichen Planus Rash Detection using FRCNN (Flutter App)
 -----------------------------------  
-<img src="screenshots/boot.png " width="500" height="600">
+<img src="screenshots/boot.png " width="400" height="600">
 
 + Setup FRCNN Workspace +   
   ** Add frcnn folder into flutter project to directly deploy a tflite model **  
