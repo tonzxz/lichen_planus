@@ -14,7 +14,7 @@ Our proposed system deals with dermatology and can greatly aid the health sector
 + Tools used +  
   - Flutter Framework
   - Python 3.8
-  - Tensorflow Framework
+  - Tensorflow API
   - Tensorflow Lite
      
 + Interface +  
