@@ -16,6 +16,7 @@ Our proposed system deals with dermatology and can greatly aid the health sector
   - Python 3.8
   - Tensorflow API
   - Tensorflow Lite
+  - Android Studio (Dev Tools)
      
 + Interface +  
   
