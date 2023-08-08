@@ -1,6 +1,8 @@
 -----------------------------------  
 # Lichen Planus Rash Detection using FRCNN (Flutter App)
 -----------------------------------  
+![Alt text](/screenshots/boot.jpg)
+
 + Setup FRCNN Workspace +   
   ** Add frcnn folder into flutter project to directly deploy a tflite model **  
   Python 3.8  
