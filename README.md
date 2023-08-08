@@ -1,7 +1,26 @@
 -----------------------------------  
 # Lichen Planus Rash Detection using FRCNN (Flutter App)
 -----------------------------------  
-<img src="screenshots/boot.png " width="350" height="600">
++ Project Description +
+
+Planus Identifier is a medical diagnostic tool designed to assist individuals in detecting and monitoring symptoms associated with lichen planus skin rash using image processing. The process by which a system analyzes and manipulates digitalized images of diseased skin areas in order to identify and classify the type of lichen planus rash.
+
+Lichen planus is a skin condition that manifests as a rash of flat-topped purple itchy areas. Many autoimmune disorders are linked to lichen planus, particularly hair loss and digestive problems. Patients with lichen planus are also five times more likely to be infected with hepatitis C.
+ 
+To build our system, we will employ an agile methodology known as the SCRUM framework, which provides a flexible and iterative approach to project management. With the advancement of our system, people will be able to identify lichen planus rash using a mobile phone that supports certain camera features.
+
+Our proposed system deals with dermatology and can greatly aid the health sector. The project will not only focus on a certain age group but rather, it can be utilized by any individual. It then makes the system very beneficial to anyone with skin complications
+  
++ Tools used +  
+  - Flutter Framework
+  - Python 3.8
+  - Tensorflow Framework
+  - Tensorflow Lite
+     
++ Interface +  
+  
+<img src="screenshots/camera.jpg " width="320" height="680"> <img src="screenshots/camera-negative.jpg " width="320" height="680"> <img src="screenshots/detect-camera.jpg " width="320" height="680">  
+<img src="screenshots/detections.png " width="320" height="600"> <img src="screenshots/manual.png " width="320" height="600"> <img src="screenshots/diagnosis.png " width="320" height="600">
 
 + Setup FRCNN Workspace +   
   ** Add frcnn folder into flutter project to directly deploy a tflite model **  
