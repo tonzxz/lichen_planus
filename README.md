@@ -21,7 +21,18 @@ Our proposed system deals with dermatology and can greatly aid the health sector
 + Interface +  
   
 <img src="screenshots/camera.jpg " width="320" height="680"> <img src="screenshots/camera-negative.jpg " width="320" height="680"> <img src="screenshots/detect-camera.jpg " width="320" height="680"> <img src="screenshots/detections.png " width="320" height="600"> <img src="screenshots/manual.png " width="320" height="600"> <img src="screenshots/diagnosis.png " width="320" height="600">
+  
++ Start a flutter project  +  
 
+  Copy files from flutter folder to project folder  
+  run install.bat  
+  ** Flutter project must contain a model, train and deploy a model before running the app **  
+  ** use "python tflite.py --deploy" to deploy a model to the flutter project **  
+  ** Provide proper labels in classifier.dart **
+  flutter pub get
+  flutter run  
+  flutter build apk ( build apk )  
+  
 + Setup FRCNN Workspace +   
   ** Add frcnn folder into flutter project to directly deploy a tflite model **  
   Python 3.8  
@@ -41,16 +52,6 @@ Our proposed system deals with dermatology and can greatly aid the health sector
   python test.py ( Test the model, includes calculation of maP from test images )  
   python tflite.py --deploy  
 
-+ Start a flutter project  +  
-
-  Copy files from flutter folder to project folder  
-  run install.bat  
-  ** Flutter project must contain a model, train and deploy a model before running the app **  
-  ** use "python tflite.py --deploy" to deploy a model to the flutter project **  
-  ** Provide proper labels in classifier.dart **  
-  flutter run  
-  flutter build apk ( build apk )  
-  
  + Directory Structure +  
 
 <pre>
