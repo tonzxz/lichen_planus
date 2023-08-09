@@ -177,16 +177,16 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
   }
 
   Future _classifyImage(File file) async {
-    int THRESHOLD = 30;
-    int IMAGE_SIZE = 224;
+    int THRESHOLD = 75;
+    List<int> IMAGE_SIZE = [300, 400];
     var image = img.decodeImage(file.readAsBytesSync());
+    // image = img.copyRotate(image!, -90);
+    // image = img.flipVertical(image);
     // resize image
     var reduced = img.copyResize(image!,
-        width: IMAGE_SIZE,
-        height: IMAGE_SIZE,
+        width: IMAGE_SIZE[0],
+        height: IMAGE_SIZE[1],
         interpolation: img.Interpolation.cubic); // resiize]
-    // reduced = img.copyRotate(reduced, 90);
-    // reduced = img.flipVertical(reduced);
     // exit function if classifier object is not initialized
     if (_classifier == null) return;
     List<Recognition> recognitions = await _classifier!.predict(reduced);
@@ -220,17 +220,20 @@ class _SetPhotoScreenState extends State<SetPhotoScreen> {
             // Draw Rect
             image = img.drawRect(image, location[0], location[1], location[2],
                 location[3], 0xFF0000FF);
+            image = img.drawRect(image, location[0] + 2, location[1] + 2,
+                location[2] - 2, location[3] - 2, 0xFF0000FF);
             // Label Detections
-            image = img.drawString(
-                image,
-                _robotoFont!,
-                location[0],
-                location[3] > image.height - 24 ? location[1] : location[3],
-                "${(recognitions[i].score * 100).toStringAsFixed(2)}%");
+            // image = img.drawString(
+            //     image,
+            //     _robotoFont!,
+            //     location[0],
+            //     location[3] > image.height - 24 ? location[1] : location[3],
+            //     "${(recognitions[i].score * 100).toStringAsFixed(2)}%");
           }
         }
       }
-
+      // image = img.flipVertical(image!);
+      // image = img.copyRotate(image, 90);
       final jpg = img.encodeJpg(image!);
       File labeled = file.copySync("${file.path}(labeld).jpg");
       labeled.writeAsBytes(jpg);
